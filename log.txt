@@ -1,4 +1,188 @@
-Day 1:
+Day 1: Chapter 1, Chapter 2
+Notes: cargo new (name) creates, cargo build (compiles), cargo run (runs)
+**cargo check builds no exec but compile checks (super valuable and cool)**
+cargo build --release makes an executable. i assume we can make an exe?
+
+Might be worth checking out cargo docs in the future when I'm not illiterate.
+
+Holy crap ok so theres already a ton of stuff.
+
+use std::io; seems to be something like this:
+std = standard library
+** the stuff thats existing in rust (no use) is called prelude. if it isn't in prelude you need to "use" it.
+io = input/output
+
+i guess this works like import?
+
+println!("text") calls the macro println. macros are made at compile time apparently.
+**HUGE** YOU CAN DO THIS: println!("blah {}", variable); and the {} will have the variable.
+this is like a formatted line, but way cleaner and more operable. so damn cool.
+
+fn main() same as always the () is the parameters.
+
+ok now its getting spicy.
+let mut guess = String::new();
+
+note: i already am confused by the ::
+
+"let" creates the variable. like let idiot = "me";
+but this is important. variables are standard immutable so to make it mut we need:
+"mut"
+so let mut idiot = "me";
+
+ok so heres some info on :: but it doesnt really make sense to me yet.
+
+:: means that the following is an associated function of the previous like:
+
+hand::wave hand is the thing (or the type i guess) and then wave is the associated func.
+
+in this case we have String as the type and new is the function that makes a new one.
+im kind of curious why it has parentheses after, but i guess thats cuz its a function? i wonder what happens if i put something in there.
+
+so after a quick chatgpt, it looks like new() is standard. but we could also use:
+from("me")
+
+so:
+	let mut idiot = String::from("me"); should work
+
+ok i found out some more stuff. so :: as an associated function makes more sense now.
+it seems like each type has associated functions like new or from. but also default.
+
+i dug into default a bit and it seems most useful for generics where you can define the trait. a trait is kinda like a way to define things associated with types (like :: associated funcs)
+
+you also cant modify built in types like string or vec but that makes sense. anyways back to the bible i got sidetracked.
+
+comments are made with "//" makes sense
+
+** note ** we use "=" to make something assigned to something. not "=="
+
+if we are using a (package? idk the correct term) like std::io, but we don't wanna "use" it for some reason. we can to std::io::associated func for io. it kinda just pulls it there without the use, but i'm not sure rn when we'd ever want this. it seems ugly.
+
+so we have some more code here:
+
+io::stdin()
+	.read_line(&mut guess)
+	.expect("Failed to read line");
+
+stdin seems to be an associated func for io (which we imported) that has standard input.
+im not sure what inputs would be non-standard but who cares for now.
+
+.read_line seems pretty obvious, it reads a line from the input instance.
+im curious what the & is and why we say that guess is mutable again.
+
+okay so it seems that the & makes it a reference. which is different than a variable?
+
+so when we do &mut guess. we are making a new reference called guess, and we have to makeit mut because references are immutable by default (like variables)
+
+okay i understand it a bit more now. so read_line NEEDS a variable to modify, but more specifically it needs a reference. i dont really get rust ownership and borrowing rn but the tldr seems to be that the variable owns its own memory position. and a reference points to that variable. read_line expects a reference and therefore needs a reference in its parameter. it also has to always be mutable to modify the variable SO
+read_line(&mut x) will always be the case.
+
+this doesnt make a ton of sense rn but it will when we get to ownership i think.
+
+typically when using methods from an instance they newline and whitespace it. makes sense
+
+so also read_line creates a Result enum. i don't know enums super well right now but for the sake of this it looks like its kind of similar to a try catch. our .expect checks the result to ensure that it ran properly.
+
+more on that it looks like Result can only return Ok or Err (those are its "variants").
+Err also seems to contain error info which is super useful.
+
+I'm not super clear on the syntax organization here but it looks like we are calling .expect on the Result that is returned from the method. this is super convoluted tbh.
+
+so its like this: instance.method.resulthandling
+if the method returns a "result (this is an enum)" then we need to handle it.
+
+theres a bunch of ways but expect seems to be the basic way. this lets us unwrap (pass) if its "Ok" and print the "failed to read line" if its "Err". theres a bunch of ways to unpack error info but thats too above board for me right now and i wanna move on.
+
+ok so expect actually CRASHES the entire damn program lmao. then it prints the string.
+
+if you dont handle the result itll give u a warning but still compile.
+
+lmao rust people love that little crab so much theyre calling {} crab pincers.
+
+okay so now we need a crate. interestingly it seems that building a file is building a crate, its just a binary crate. what we want is a library crate.
+
+when we want to use a crate we need to modify the cargo.toml to include the rand crate. this seems pretty annoying since you need the versions but itll probably just turn into a txt file that has me keep track of the versions. or use google to find the latest.
+
+so it seems like in general we want to operate on specific versions which means i need that txt file. if you put 1.0 it will run all 1.0.1 1.0.2 etc. you can also update it with cargo if you need to for some reason.
+
+**BIG NOTE** all crates are from crates.io amazing place to find stuff
+
+when you build it gens a cargo lock file. that file serves as a kind of safepoint for running the file in the future if there are crate updates that break it. be careful updating since itll change the lock file.
+
+interestingly rustanalyzer shows options for the crate. i wonder if the crate creater codes those in?
+
+we wanna use rand::Rng so i assume the syntax is crate::associated func. interestingly the bible calls Rng a trait and not an associated func. im not sure why.
+
+ok i get it. so associated funcs are for types only. you can use traits to define them but they arent "built-in" like type associated funcs are. everything else used in that way is a trait so the crate import uses traits not associated funcs with ::.
+
+theres some code here that is a bit too high level for me rn but i wanna put it here anyways.
+
+rand (the instance) :: thread_rng().gen_range(1..=100)
+
+thread:rng gives us the thread that is local to the current execution thread, which is seeded by our OS. i have no clue what this means but ok.
+
+ok after some research i understand threads a bit more. it seems like threads are kind of execution units that do "stuff". our main process always begins on a thread, we could call it the main thread. but then we can spawn in more threads to do other stuff. its kind of like asyncs but asyncs are nonblocking processes that happen simultaneously and don't necessarily need a new thread. you could async on a new thread tho i guess. also asyncs rely on the executor to keep running the main program. im not too worried about the semantics of this right now but it seems interesting to understand how it works. anyways back to threads, when we use thread_rng it is generating the rng value from the local thread aka the main thread. if we had two threads, the rng value would be different. also when we re-run the program the thread will be different again. there are other ways to generate rng this is just one.
+
+finally gen_range generates based on a range expression. in this case its start...=end. im not sure if there are other range expressions but this one seems relatively simple. weird syntax though.
+
+**BIG NOTE** if you don't know how to use a crate, just do cargo doc --open and navigate to the crate you want to understand. i assume theres also something on crates.io
+
+okay now we have a new standard library import called cmp which is compare. this seems to be similar to comparable interface? We also get the trait Ordering from it so the syntax is:
+use std::cmp::Ordering;
+
+Ordering seems to have the variants: Less, Greater and Equal.
+
+okay so cmp isnt comparable, it just compares comparable types i guess? i dont remember if thats the same or not.
+
+also we can call an enums variant options like so:
+Ordering(this is the enum)::Less(this is the variant)
+
+ex match guess.cmp(&secret) dont forget this is an immutable reference to secret
+	{
+		Ordering::Less => println!("Too low"),
+	}
+
+now if guess.cmp creates Ordering::Less we will print Too low. 
+
+match seems to be made of up things called arms and the syntax is match expression {arm,arm,arm}
+
+the arms are just cases i think. always csv'd. so like case1 => expression1, etc. also last arm still ends with a comma not a semicolon.
+
+looks like match is best for enums, but can be used for anything. btw we use _ => as a catchall for things that arent found within the match. if something happens that isnt caught its gonna not compile.
+
+interestingly the arm checks in the match are looking for the value which is Ordering::variant. so it can check for the variant value like that which is pretty useful ngl.
+
+apparently theres a ton of number types like i32, u32 and so on. the i means it can be positive or negative (aka it has a sign like -32). unsigned means just positive or zero cuz those don't have a sign. awkward but makes sense.
+
+now we need to parse our input into an int. afaik all inputs are strings, its just the way it is baby. and we do it like this:
+
+let guess: u32 = guess.trim().parse().expect("error");
+
+i have 0 clue why its let guess : instead of let guess = but whatever.
+
+u32 is our new type. we trim away the trailing and leading spaces and then parse it.
+we also check the result type to avoid the warning and make sure it parses properly.
+this would fail if it was a negative number i believe since its u32.
+
+the bible calls this shadowing when we re-use the same variable name in type conversion. idk if it comes up in other operations but it just seems a simple name reuse here.
+
+ok so now they say the colon after the variable name tells rust we are changing the type. the syntax here is godawful but its just the way it is. ill just have to memorize this syntax somehow.
+
+interestingly by comparing secret and guess we are actually going to infer secret into a u32 type. i wonder if it naturally does this with all number types. ok so yeah with all number types it does type promotion setting the lower to the higher value. so u -> i 0 -> 1, etc.
+
+so you can also add {} after an arm like arm => {}. if you do this you don't need a comma after apparently.
+
+holy crap this code is so hard to understand but here it is:
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+so we type convert guess into u32 with :. but then we also want to use the match for the result enum from parse. so our expression has parse. and then we provide the arms for the two variants of result.
+
+Ok also seems to contain our num value so thats how Ok(num) => num works
+Err(_) is catching all error codes possible.
 
 Day 2:
 
