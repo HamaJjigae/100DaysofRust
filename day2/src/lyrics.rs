@@ -28,7 +28,7 @@ pub fn lyrics() {
     while counter != 12 {
         println!(
             "On the {} day of Christmas my true love gave to me: ",
-            Ordinal(counter + 1).to_string()
+            Ordinal(counter + 1)
         );
         for i in (0..=counter).rev() {
             println!("{}", words[i]);
