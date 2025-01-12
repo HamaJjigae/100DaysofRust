@@ -184,7 +184,222 @@ so we type convert guess into u32 with :. but then we also want to use the match
 Ok also seems to contain our num value so thats how Ok(num) => num works
 Err(_) is catching all error codes possible.
 
-Day 2:
+Day 2 Chapter 3:
+
+so the chapter starts off talking about mutability which i already understand pretty well.
+one thing thats interesting though is that the default is immutable. This is semi-standard but i think it reinforces the idea that we really want to be thinking about if we should make something mutable or not.
+
+interestingly there are still a type called constants but they ahve to be defined seperately.
+like so:
+	const EXAMPLE (all caps seems to be naming convention here, with underscores obv): u32 = 10;
+**Note that we have to define our type explicitly here, whereas in a variable we can just let rust figure it out**
+
+ok so after a small dive into const vs variable vs static i found a few things out.
+
+variable:
+type is determined at compiletime
+value is determined at runtime
+
+constant:
+type is determined at compiletime
+value is determined at compiletime, but only certain expressions are allowed
+
+static:
+type is determined at compiletime
+value is determined at runtime
+NOTE, statics are global and persistent. immutable statics are threadsafe, mutables are not.
+
+theres something here about creating a "data race" in which two threads access the same mem location and at least one is a write and theres so sync operations. this can happen with static mut and bc of that u gotta be a bit more careful with wrapping them.
+
+theres also something called an atomic type which ive never heard of. something to look into in the future.
+
+also found out that since rust doesnt have a garbage collector it uses drop::drop which is like a destructor in c++. p much its a deterministic way to handle stuff that goes out of scope.
+
+shadowing seems to be a better alternative to a mutable variable. it lets us hold onto values alot better and still modify things within different scopes. it doesnt let us just arbitrarily dump values or change them without any care.
+
+ok so i got a bit sidetracked but it looks like variables within rust are stored in a stack or a heap.
+stacks are for simpler variables and heaps for more complex ones.
+
+the reason we can shadow variables and have them keep the same name is due to how the scope places the variable on the stack (or heap). interestingly only copy types can be put on the stack due to how they are handled and due to the fact that they require little memory.
+
+the non copytypes will be moving the data itself which removes the previous data. this is for vecs or strings for example.
+
+oh also for heap values there will be a pointer placed within the stack.
+
+imo shadowing seems most valuable for the stack types rather than the heap types, but still can have applications?
+
+ok data type stuff. this is all memorization so here goes:
+
+ints:
+
+8bit, 16, 32, 64, 128 or arch. arch is just determined by which os ur on.
+
+literals can use _ in place of a , to provide clarity like 3_000.
+
+i dont know much about literals tbh but there is Decimal, Hex, Octal, Binary and Byte here. Byte can only be u8.
+
+okay so a note here. since u8 lets us hold values from 0 to 255, if we do 256 and compile the system will panic. aka crash with an error.
+however if we launch it as a release it will not panic, and instead wrap the value. so 256 would be 0 and 257 would be 1 and so on. we can handle this with the following:
+
+Wrap it in wrapping_* methods like wrapping_add.
+Return None if there is overflow with checked_* methods
+Return value and boolean with overflowing_* methods
+Saturate(wtv this means) at the values min or max values with saturating_* methods.
+
+for floats we have f32 and f64 but it seems like most people use f64 for everything cuz its more precise.
+
+because of type assumptions it acts a little weird when we do -5/3 (gives -1). bc its thinking its an int and returns an int, when we'd want a float. remainder works the same with %.
+
+**note dont forget that we use : to set the type**
+
+bools work exactly as expected btw.
+
+Chars are done with single quotes not double quotes. i assume this helps the type inferrence.
+
+ok so tuples are fixed length which we knew, but we can also define the types as such which is cool:
+
+let tup: (i32, f64, u8) = (500, 6.4, 1);
+
+otherwise we could let type inferrence figure it out.
+tuples are defined as csvs within parentheses.
+
+we can access the values in 1 of 2 ways (so far at least)
+
+we can set the tup to save within a new var like:
+
+tup = (500, 6.4, 1); this is called destructuring
+let (x, y, z) = tup;
+
+or we can just pull from the tuple as an index with:
+
+let five_hundred = tup.0; **note we use . here to access the index which looks cool**
+
+interestingly a blank tuple is called a "unit"
+
+like java Arrays are also fixed length. however unlike a tuple, arrays must hold all the same type.
+
+arrays are written like this:
+
+let array = [1,2,3,4,5];
+
+it seems like vecs are just better arrays but theyre on the heap rather than the stack.
+however if you KNOW it will never change in length an array is better.
+
+if you want to define the size and type of an array you do it like:
+
+let array: [i32, 5] = [1,2,3,4,5];
+
+you can also automate the same value across an array in such a way:
+
+let array = [3;5]; this will make the value '3' appear 5 times in the array.
+
+we access values from the array as like other languages with name[0] and so on.
+
+in rust we use snake_case for function names. and we call em like functions in other languages aka
+snake_case();
+also we dont care where its defined as long as its within the proper scope.
+
+ok heres some actually useful info. parameters MUST have a type definition. so it would be like this:
+snake_case(x: i32) {}. 
+parameters are seperated by commas so snake_case (x: i32, label: char) {}
+
+i assume that it must be passed in the same order as is required by the fn
+
+ok so apparently this is important:
+statements perform actions and do not return a value (voids?)
+expressions return a value.
+
+this seems to stop you from doing something like x=y=6 since y=6 wouldnt have a value since its a statement.
+
+this also means you can do something like:
+
+let y = {
+	let x = 3;
+	x + 1
+	};
+this will make y 4 since the expression at the end is returning into the y value.
+
+because of this, expressions dont need the ;, only statements do.
+
+okay now its getting awkward. so if we want a return within an fn we use ->
+
+so fn five() -> i32 {
+	5
+}
+
+this returns the i32 data type value 5. it does this because it is the FINAL expression within the function.
+we can also use the return keyword like in other languages to return early.
+
+seems like the compiler will catch this, but its good to remember and think abt the differences between expressions and statements esp as it relates to syntax.
+
+i swear like 90% of rust so far is just to make clean code and i love that.
+
+so for 'ifs' we write it as:
+if x = y {} there are no brackets like in some languages. i assume we can use them tho if we want?
+
+ok so this is all same same but might as well write it out. if check for a bool, if it isnt a bool it panics.
+you can use else to set the false arm for the if statement.
+
+RUST WONT CONVERT NUMBERS TO BOOLS THANK GOD. SCREW YOU JS
+
+** doesnt equal is the same syntax of !=**
+
+rust writes else if as...drumrolllll... else if...so...
+
+if x = y {} else if {} else if {} else {}
+
+we should probably use match for anything over 2 else ifs
+
+HOHO we can use conditionals when assigning variables as well thats tight.
+
+let condition = true;
+let number = if condition {5} else {6};
+
+however these two options must be the same type. probs due to how it does type inferrence.
+
+3 kinds of loops: loop, for, while
+
+loops are infinite and need to be broken written like:
+loop {}
+
+interestingly the loop can return a value on the break
+
+let mut counter = 0;
+
+let result = loop { counter += 1; if counter == 10 { break counter * 2; } };
+
+this would return 20 from the loop to the value for result. (need the semicolon to make it a statement)
+
+**note that break only exists the current loop, return exits the function**
+
+we can create loop labels with the format 'name . so like 'counting_loop: loop {}.
+this lets us do targeted breaks with break 'counting_loop;
+
+while loops similarly to ifs are just like:
+while true {}
+
+kind of like java we can do a for loop that sets a variable such as:
+
+let array = [1,2,3,4,5]
+
+for element in array {}
+
+you can also do in ranges like 1..4 or reverse it with 1..4.rev()
+
+ok now im gonna work on the recommended projects for my remaining time.
+
+convering fahrenheit and celcius
+generate the nth fibonacci number
+print the lyrics to the christmas carol 'the twelve days of christmas'
+
+okay so i made an option select for the programs but havent started working on the programs themselves yet.
+
+i found out that as long as a type has a FromStr method you can do something like:
+
+match string.trim().parse::<u32>() {} instead of let string : u32 = string.trim().parse().expect(). which is nice.
+
+ngl this was so convoluted to even do this simple thing but im sure itll become easier.
+
 
 Day 3:
 
