@@ -20,7 +20,7 @@ pub fn lyrics() {
     //this is a very ugly way to handle the first iteration but it doesnt have uncessary checks
     println!(
         "On the {} day of Christmas my true love gave to me: ",
-        Ordinal(counter + 1).to_string()
+        Ordinal(counter + 1)
     );
     println!("A partridge in a pear tree.\n");
     counter += 1;
