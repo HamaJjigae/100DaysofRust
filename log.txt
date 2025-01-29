@@ -403,7 +403,205 @@ ngl this was so convoluted to even do this simple thing but im sure itll become 
 
 Day 3:
 
+Had a bit less time today so just wanted to work on the programs. I found out a few new things that seem very useful.
+
+1. Option is an enum that is either Some(T) or None. So its either some value or nothing.
+
+2. Recursion is so awful for repetitive calls, BUT we can do something called memoisation to hold onto old recursions. this is kind of like how we use hashmaps for 3sum.
+
+3. The fibonacci sequence ramps up really quick.
+
+4. By using u over i for int parses, we can actually check for negatives with Err(_).
+
+My fibonacci code kept getting cooked with high numbers due to memory restrictions but also performance so i had to look up the way to code it properly. because of this, i wanted to include my understanding of how the code works below as its not really my code.
+
+so we want to use HashMaps to store and check the values of each iteration of the fib fn as it will call the same values over and over. we do this by storing it in the memo hashmap and passing that HashMap to the next recursion as well. this means we are constantly updating the hashmap with the values for each N, and then checking them with Option::Some.aka if they exist we don't recalc them. this saves a ton of time and stops our pcs from taking off.
+
+this is just a word thing, but this is just caching right? we're caching our values and then checking them.
+
+kind of a cool way to do it with if let Some(&result) = memo.get(&n)
+
+this means we can put a conditional on the Option::Some enum that we get from .get
+
+turns out that fixed length collections don't return option, but variable length like vecs or HashMaps give us back an Option enum from .get since they can return something but aren't "guaranteed" to.
+
+also if let Some(&result) = memo.get(&n) is just a lowlevel way of saying if memo.get.exists but with destructuring to handle the references from n to result.
+
+im gonna call it right now ownership is going to make my head spin off my shoulders for a long time.
+
+OK THIS IS SO CONFUSING RN IM SURE ITLL MAKE SENSE IN THE FUTURE BUT & BOTH REFERENCES AND DEREFERENCES STUFF. HOW DOES THAT MAKE SENSE.
+
+so this line: let Some(&result) = memo.get(&n)
+
+does all of this:
+1. memo does not want us to have ownership of the values it has, since its a greedy bastard. (this is also for performance and safety)
+2. .get returns an Option enum kind of. since we are using references (&n) we don't technically have the value, but we have a reference to that value. so the option enum is also going to contain the value within a reference.
+3. So now we have a fork where its either Some(reference) or None (this is just null)
+4. With our logic it only continues when it is Some, but our Some is a reference value which isn't really that useful for computations.
+5. So we DEREFERENCE our reference with &result, which gives us the value from .get without actually taking ownership away from the hashmap.
+
+working with ints in rust is definitely interesting since you can overflow so quickly. even a u128 caps out really quickly in rust, and it makes me want to use BigInt crates. its just so unecessary for this project. i learned a ton about matching and handling parses but tbh i feel like ill forget all this syntax by tomorrow. itll take time and im really enjoying the process so far. i hope i become a good rust coder.
+
 Day 4:
+
+I ended up taking a huge break from this project due to some life stuff, but I am back and hopefully consistent. The goal for now is to start doing 2 "Days" per day to catch up on lost time. This is all within the realm that I can actually understand what I am learning. Today is chapter 4: Ownership.
+
+So they briefly discuss stack and heap here, 1 thing to note is that the data stored on the stack must have a known size (like an array). but data on the heap does not (like a vec). It seems like there's something called an 'allocator' that kind of works like an usher at church. It tries to find memory within the heap to fit you.
+
+Here are some basic rules for ownership:
+1. each value in rust has an owner
+2. there can only be one owner at a time
+3. if it goes out of scope, the value is dropped
+
+.push_str("text"); adds text to the end of a mutable string
+
+so a string literal (&str) is a hardcoded value stored at compiletime, a String is mutable and can grow and shink at runtime.
+
+so unlike C where we need to allocate a variable and then free it, rust returns the memory as soon as a variable is out of scope. this means scope is really important in rust.
+
+AHA here is drop. i knew theyd mention it eventually. p much when a var goes out of scope it calls drop on the var.
+
+okay so copying data on the stack is easy you can just copy it as normal. but if you do something like:
+
+let s1 = String::from("world");
+let s2 = s1;
+
+what will happen is s1 will now be invalidated, and s2 will have the pointer, capacity and length of s1. in simple terms it becomes the new owner of that memory.
+
+rust calls this 'moving' rather than 'copying' to differentiate between the two.
+
+to 'copy' a string we must instead .clone it. which is quite performance intensive due to how we handle heap values
+
+if we do something like:
+
+let mut s = String::from("world");
+s = String::from("ahoy");
+
+println!("{s}, world!");
+
+it will invalidate or remove the pointer to world and instead set a completely new pntr length and capacity for ahoy. the pointer and capacity and length for world will now be freed and will be 'collected' by drop.
+
+a few notes here about copy and clone, since we know that copy needs the information to be on the stack and not a pointer, we can only copy scalar values like int, bool, char, float, etc.
+
+we can copy arrays and tuples BUT the datatypes within them must also be scalar. aka an array of [1,2,3] is copyable but ['x', 'y'] is not since a string is not scalar. For vecs, since they aren't scalar at all, we can't copy them ever.
+
+okay so some things that can screw us up are here. if we pass a String into a function, we are giving it ownership of that value. that means in the current scope the variable is now out of scope. To keep that value inside of the current scope (not the function scope) we have to clone it first before passing it into the function.
+
+this isnt used rn but the dereferencing operator is *
+
+references can be mutable which allows any operation to be performed on the reference as long as it does not require ownership. aka a &mut String can be .push_str'd
+
+one thing about mutable references is there can only be one at a time.
+
+okay i got a little sidetracked here but i found out something about threads called thread pools. rayon (which is a prelude method? crate? idk) allows us to create a thread pool which queues actions that exceed the maximum threads for parallelism. so if we have 10 tasks and 4 threads itll do 4 tasks, and as soon as one thread finishes, task 5 will start and so on.
+
+data races happen because of the following:
+
+Two or more pointers accessing the same data at the same time
+At least one of the pointers is being used to write to the data
+Theres no mechanism to synchronise the data
+
+interestingly you can create a block scope which is a scope with no identifier. this can be used to end mut references and many other things. seems pretty useful.
+
+similarly as mentioned before, like how we can't have two mutable references, we also cant have an immutable reference and a mutable reference to the same thing existing at the same time.
+
+there is a bit of a variance here where an immutable reference is only 'active' or 'in scope' when it is being used
+
+if it stops being used, it stops being active. and then we could for instance set a mutable reference. however, if we use the immutable reference after we try and set the mutable reference it will cause an error since the immutable reference is still active.
+
+okay so slices here are a really important type and they seem very powerful. pretty much it allows us to return part of a collection, rather than the entire collection. Also its a reference so it doesnt have ownership.
+
+few small things here, to iterate over a string letter by letter we turn it into bytes using string.as_bytes();
+
+then we can use .iter() to iterate over the array of bytes.
+
+okay this is big and i have no clue how i didnt know this. each letter has an ASCII value associated with it. so 'h' is 104. this means .as_bytes can be used for cryptography. very sick.
+
+.enumerate() wraps the results of .iter() and presumably other things, and returns it as a tuple.
+
+not that b'' is a byte literal, but '' is a char literal.
+
+we create slices within a range by doing this:
+
+let s = String::from("hello world");
+
+let hello = &s[0..5];
+
+this format is &(reference) [starting index...ending index]; to make a slice
+
+a note for rust's range syntax, if ur starting at index 0 you can just drop the 0 and go [..5]
+
+similarly if it goes to the end it can just be [5..]
+
+combining those this is valid: s&[..];
+
+**NOTE slice range indices must be at valid UTF-8 character boundaries** idk what this means but lets just leave it here for now.
+
+&str would return a string slice for instance if it has a range.
+
+note here that &str which is a string literal is actually a reference to a slice. at compiletime the string is turned into binary and we slice that to provide our value. so &str is a reference to a slice of binary.
+
+you can also use &str to kind of cover your ass for &String and &str since &str is a slice already this is something called deref coercion which i don't really get yet but its covered in ch15 or somethin.
+
+OKAY CHAPTER 5 FOR LIKE 12MINS.
+
+Structs. I know you use Structs/enums to do something similar to OOP so this will be interesting.
+
+Okay so structs kind of work like attributes in OOP allowing us to do something like this:
+
+struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+}
+
+however once important note on the wording is that these are called 'fields' and not 'attributes'
+
+this kind of works like an abstract constructor where we are given these fields but still have to fill them out:
+
+fn main() {
+	let user1 = User {
+		active: true,
+		username: String::from("example123"),
+		email: String::from("example@example.com"),
+		sign_in_count: 1,
+	};
+}
+
+a few notes here: a field can be set as optional with Option<data type>
+	also a field can be filled with the default value for that data type with ..Default::default.
+
+HOWEVER you cannot define a default value in the struct itself.
+
+we can get the value from a field with dot notation like user1.email
+we could also change the value of the field assuming user1 is mut with user1.email = String::from("change");
+
+however for this to work the entire instance must be mutable, not just the field.
+
+we can also make a fn like this that kind of automates the active status and sign_in_count:
+
+fn build_user(email: String, username: String) -> User {
+	User {
+		active: true,
+		username: username,
+		email: email,
+		sign_in_count: 1,
+	}
+}
+
+this means that we can just pass in email and username and get a new user like that.
+
+ALSO if the parameter and the field have the same name aka email: email, we can just write, email on that line and it works properly. this means double-naming actually helps us here.
+
+we can also steal the values from another instance very efficiently with .. such as:
+
+let user2 = User {
+		email: String::from("anotheruser@example.com")
+		..user1
+	};
+
+this would be a very efficient way to copy data. but for now that's my time. ONWARDS AND UPWARDS TOMORROW RAH.
 
 Day 5:
 
