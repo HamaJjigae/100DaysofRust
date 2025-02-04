@@ -605,6 +605,168 @@ this would be a very efficient way to copy data. but for now that's my time. ONW
 
 Day 5:
 
+okay it is definitely not 'tomorrow' but we press on. i think we are on structs. should finish this + enums today maybe?
+
+like 0% chance we actually get to code anything today right? im thinking that after we get through chapter 8 common collections we start to work on our cli and then return to studying. ah shit ok nvm theres literally a chapter on cli LOL. ok we have to get to chapter 12. so 5/6 today. 7 and MAYBE 8 tomorrow. 9/10 seem fast. then 11 and some of 12. then we finish 12 and work on cli. cli probs takes like 3-5 days ish? since ive decided to pivot from OS dev to blockchain we need to really be studying some blockchain so after the cli we slam it to 20 and then full-send blockchain studying. ideally within the zk snark project of groth 16 1-1 -> halo2 1-1 -> halo2 m-1. then some final zk snark/crypto project for the portfolio then im off to the races.
+
+ok so tuple structs are used to group values under a particular name without needing fields. they are just kind of like a container. the values are also grouped under the custom type defined by the tuple struct's name. each struct you make is its own 'type' right. you can also index these.
+
+you can also make a unit-like struct that doesn't have any fields at all. this is useful mainly for implementing traits on a type.
+
+its written like this btw:
+
+struct TestTester;
+
+no parentheses or curlies.
+
+ok so when making structs you normally want to use standard Strings so that they own the values and are valid while the struct is valid. however you can use &str slices or any other kind of reference as long as you define its 'lifetime'. lifetimes are things covered later, but good to know they exist for now.
+
+okay so here we have an example program. ill write it out to keep up.
+
+fn main() {
+	let width1 = 30;
+	let height1 = 50;
+
+	println!(
+		"The area of the rectangle is {} square pixels.",
+		area(width1, height1)
+	);
+}
+
+fn area(width: u32, height: u32) -> u32 { width * height }
+
+we can convert this into a standard tuple by combining width and height into
+
+let rect1 = (30, 50);
+
+and fn area is -> fn area(dimensions: (u32, u32)) -> u32 { dimensions.0 * dimensions.1 }
+
+now we can use a struct here to define Rectangle which is much clearer:
+
+struct Rectangle {
+	width: u32,
+	height: u32,
+}
+
+fn main() {
+	let rect1 = Rectangle {
+		width: 30,
+		height: 50,
+	};
+
+	println!(
+		"The area of the rectangle is {} square pixels.",
+		area(&rect1)
+	);
+}
+
+fn area(rectangle: &Rectangle) -> u32 {rectangle.width * rectangle.height }
+
+^^^^^^^^ this is legit just OOP but much cleaner.
+Note that when we send rect1 to fn area we use a reference since we wanna keep ownership within the struct.
+
+so some notes here: if we add {:?} inside the curly braces it uses an output format called 'debug'.
+debug trait enables us to print out struct in a way thats useful for devs so we can see its value.
+
+to make this work we need to add #[derive(Debug)] to our struct. damn rustc is actually so helpful lmao. the error text is nuts
+
+with larger structs you can also use {:#?} which formats it into a new line for each field.
+
+you can also use dbg! instead of println! but some notes on this. 1. it prints to stderr not stdout. we can also set dbg! in the field itself like so:
+
+width: dbg!(30 * scale),
+
+ok so now we have methods (THIS IS JUST OOP LOL). methods are defined with fn (just like a func), but exist within the context of a struct, enum or trait object.
+
+heres the full code:
+
+#[derive(Debug)]
+struct Rectangle {
+	width: u32,
+	height: u32,
+}
+
+impl Rectangle {
+	fn area(&self) -> u32 {
+		self.width * self.height
+	}
+}
+
+fn main () {
+	let rect1 = Rectangle {
+		width: 30,
+		height: 50,
+	};
+
+	println!(
+		"The area of the rectangle is {} square pixels.",
+		rect1.area()
+	);
+}
+
+so to start with we have an impl (implementation block). this turns the fn to a method within the context of the struct. then we ensure the method has &self,
+since the parameter typically utilizes self in a method. then when we reference area we can use it as a method syntax such as rect1.area().
+
+within the impl block, the type 'Self' refers as an alias to the type that the impl block is for. in this case, Rectangle.
+Typically we call self with &self as a reference. we can sometimes use &mut self and RARELY we use just self. this would only be used when the method transforms self, and we want to prevent the caller from using the original instance.
+
+typically when a method has the same name as a field like:
+
+impl Rectangle {
+	fn width(&self) -> u32 {
+		self.width
+	}
+}
+
+we use this as a 'getter'.
+
+note that automatic referencing occurs in methods which keeps code cleaner and removes the need to set mut values on references.
+
+ok now we want some kind of method that checks if it can fit inside anothe rectangle. im gonna try and code this myself.
+
+struct Rectangle {
+	width: u32,
+	height: u32,
+}
+
+impl Rectangle {
+	fn can_fit(&self, other: Rectangle) {
+		if self.height > other.height && self.width > other.width {
+			true
+		}
+		else { false }
+	}
+}
+
+something like that?? ok i forgot &Rectangle instead of Rectangle. you can also make it WAY cleaner with the bool setup.
+
+impl Rectangle {
+	fn can_fit(&self, other: Rectangle) -> bool {
+		self.height > other.height && self.width > other.width {
+	}
+}
+
+if we don't have self as the first parameter it isnt a method, its an associated function. a very standard way of doing this is with constructors (which we set to the name 'new')
+
+it would be something like this:
+
+impl Rectangle {
+	fn square(size: u32) -> Self {
+		Self {
+			width: size,
+			height: size,
+		}
+	}
+}
+
+To call this associated fun we use :: like 
+
+let sq = Rectangle::square(3);. 
+
+also we can have multiple impl blocks. we will find out why thats ever useful in ch10 apparently. dude ch10 has so much lmao.
+
+ok its only been about an hour and id really like to do enums as well but i should sleep. my focus timer also bugged out so its a sign.
+
 Day 6:
 
 Day 7:
@@ -637,7 +799,13 @@ Day 20:
 
 Day 21:
 
-Day 22:
+Day 22:let mut s = String::from("world");
+s = String::from("ahoy");
+
+println!("{s}, world!");
+
+it will invalidate or remove the pointer to world and instead set a completely new pntr length and capacity for ahoy. the pointer and capacity and length for world will now be invalidated and will be 'collected' by drop.
+
 
 Day 23:
 
