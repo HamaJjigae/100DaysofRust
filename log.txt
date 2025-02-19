@@ -769,6 +769,108 @@ ok its only been about an hour and id really like to do enums as well but i shou
 
 Day 6:
 
+Gonna do a short little session on enums today since I've been really bad on this project. Gonna do smaller sessions to try and build good habits.
+
+okay so each enum value can only be one variant or another. it cant be both. so its useful for more selective properties rather than shared properties like a struct would have. mutually exclusive.
+
+you can reference the enum like so:
+enum IpAddrKind {
+	V4,
+	V6,
+}
+
+let four = IpAddrKind::V4;
+let six = IpAddrKind::V6;
+
+then we can use it in a fn like so:
+
+fn route(ip_kind: IpAddrKind() {}
+
+route(IpAddrKind::V4);
+
+you could use a struct to set a 'kind' and 'address' associations but it makes more sense to do it through a pairing within the enum:
+
+
+enum IpAddr {
+	V4(String),
+	V6(String),
+}
+
+let home = IpAddr::V4(String::from("127.0.0.1"));
+
+this means that the IpAddr enum has an associated string value.
+
+you can also do differentiation as such:
+
+enum IpAddr {
+	V4(u8, u8, u8, u8),
+	V6(String),
+}
+
+let home = IpAddr::V4(127, 0, 0, 1);
+let loopback = IpAddr::V6(String::from("::1"));
+
+theres also a std lib for IpAddr, but it sets address data inside a struct:
+
+struct Ipv4Addr {}
+struct Ipv6Addr {}
+
+enum IpAddr {
+	V4(Ipv4Addr),
+	V6(Ipv6Addr),
+}
+
+so you can really put any type of data within an enum variant, strings, types, structs or even another enum. so like...cascading enums?
+
+im really interested in learning about vecs but holy god the syntax looks so awful lmao
+
+oooh you can have named values in an enum as well like:
+
+enum Message {
+	Quit,
+	Move { x: i32, y: i32 }.
+}
+
+so afaik, match lets you (forces you) to access all the points in an enum (above would be quit and move). if let accesses one (so just move, or even just x), or you can use a fn to do some kind of custom return.
+
+Enums also don't 'sort' values into the respective enum. rather they have to be explicitly cast into the correct enum. you could always add handling in an outside block.
+
+okay now we have the std::Option
+OH IS THIS SOME() NONE()??
+
+interesting that Rust actually doesn't have null. i guess its just None?
+
+okay its defined as:
+
+enum Option<T> {
+	None,
+	Some(T),
+}
+
+oh its not even std::Option. its legit a prelude that makes sense ngl cuz nulls are pervasive.
+
+example:
+
+let some_number = Some(5);
+let some_char = Some('e');
+
+let absent_number: Option<i32> = None;
+
+so some_number would be Option<i32> (i guess thats the default. apprently i32 is the default for all ints in rust)
+
+we can also define a type for None, corresponding to that variable. so absent_number would be Option<i32>
+
+However you cant do this:
+
+let x: i8 = 5;
+let y: Option<i8> = Some(5);
+
+let sum = x + y;
+
+this is because Option<i8> isn't actually a value. its an enum reference. we need to extract that value if we want to use it.
+
+okay im done with 6.1 today. ill do 6.2 and maybe 6.3 tomorrow who knows.
+
 Day 7:
 
 Day 8:
