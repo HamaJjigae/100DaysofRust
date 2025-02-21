@@ -873,6 +873,59 @@ okay im done with 6.1 today. ill do 6.2 and maybe 6.3 tomorrow who knows.
 
 Day 7:
 
+aight 6.2 time. this is just probably only about match cases since its pretty short. im honestly ok with somethign short cuz i want to make a small little program to nail in these skills anyways.
+
+so match p much cascades and covers all options.
+
+enum Coin {
+	Penny,
+	Nickel,
+	Dime,
+	Quarter,
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+	match coin {
+		Coin::Penny => 1,
+		Coin::Nickel => 5,
+		Coin::Dime => 10,
+		Coin::Quarter => 25,
+	}
+}
+
+so like ifs we have a conditional here, but unlike ifs which need a bool, we can use any type like the Coin enum built above.
+
+you can also add baby fns within the arms with {} like so:
+
+Coin::Penny => {
+	println!("Lucky penny!");
+	1
+}
+
+it seems like we could use matchs to check with Option for null values as well. might be a cleaner way of doing it
+
+like fn plus_one(x: Option<i32>) -> Option<i32> {
+	match x {
+		None => None,
+		Some(i) => Some(i + 1),
+	}
+}
+
+okay if let is even shorter so lets finish this as well before we start working.
+
+if let (like i said before) is mainly for one option, or one arm without having to exhaustively go throught them all.
+
+okok im done with this. its pretty easy to understand but the syntax needs implementation to make sense fully. time to make something.
+
+okay so going through my project a few things so far:
+
+1. let loop and let match are SO NICE. returning values from these makes a lot of sense and helps with some intialization issues.
+2. you can use .retain on a vec to remove a particular value kind of like a find and remove but for 1 thing.
+3. returning to let match...so before i had a 'choice' var that i wanted to keep track of for another if. so i initialized it at the start of a loop,
+but since the loop had an io::stdin after it and that can panic, it saw the choice var as being possibly out of scope. idfk how to fix it other than placing it
+below. but that felt ugly. so instead just use a let choice : i8 = match and ur off to the races. its very nice.
+4. When using io inputs for traits..? OH ITS FIELDS. Ok for using an input for fields its better to use .trim().to_string() rather than String::From.
+
 Day 8:
 
 Day 9:
@@ -901,13 +954,7 @@ Day 20:
 
 Day 21:
 
-Day 22:let mut s = String::from("world");
-s = String::from("ahoy");
-
-println!("{s}, world!");
-
-it will invalidate or remove the pointer to world and instead set a completely new pntr length and capacity for ahoy. the pointer and capacity and length for world will now be invalidated and will be 'collected' by drop.
-
+Day 22:
 
 Day 23:
 
