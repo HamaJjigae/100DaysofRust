@@ -928,7 +928,79 @@ below. but that felt ugly. so instead just use a let choice : i8 = match and ur 
 
 Day 8:
 
+I finished my program this morning and decided to do some leetcode. I shoulda been keeping track of what i learned so far but wtv. I'm gonna do it for the like last 10 mins im working on this lol.
+
+if u wanna check length of string you can use string.chars().count()
+
+you can use .max() to keep the max of two values so like:
+
+let x = 1.max(2);
+
+vecs are honestly kinda goated even if the syntax is weird. you can insert into x index with .insert as follows:
+
+vec.insert(index, value);
+
+ok so optimizing that took almost 8 hours. some takeaways here:
+
+when working with linked lists it seems pretty standard to set head to the node, and then set current to a ref to head.
+
+that makes it so that you can 'save' head, but continue working with the current node after that without pushing head out of scope. its super convoluted but just trust that this is the best way to do it.
+
+while .is_some() seems to be a pretty useful and powerful tool for handling enum operations, but its also just super value for casting things into Option and then using it like that. I cant think of great uses right now cuz its almsot 6 am but yeah it seems really good.
+
+linked-lists in general are awful in rust by the way. im sure at some point they will make sense but right now the way they handle ownership is so awful. for instance lets look at this:
+
+if let Some(mut node) = l1_mut {
+	temp += node.val;
+	l1_mut = node.next.take();
+}
+
+the main reason behind this is due to how Rust handles node hopping.
+
+so the if let Some(mut node) = l1_mut works to unwrap the l1_mut.
+
+p much l1_mut is an Option<Box<Node>> and we need to remove the Option part. so we check if it is Some or None.
+
+'If' it is Some, then we want to remove the Option enum and just get the Box<Node>. we are doing this by creating a new var just like in a for loop. we also want that var to be mutable so its mut node.
+
+so this is the syntax for if let Some:
+
+if other side of '=' is Some, let (thing inside paranthesis) be the value within Some.
+
+the important thing though is in the final line where we "take" the .next which is the link between nodes.
+So from node1 to node2 we NEED to own that link (or take it) so that we can go to node3. this is because if we don't take ownership for 1-2, trying to go into 3 will cause a double ref from 1 and us. so we need to keep cutting off the nodes behind us as we move forward.
+
+
 Day 9:
+
+Im gonna do some small studying today since im really burnt from last night working on that leetcode problem. gonna refresh myself on ownership and borrowing and maybe study something new. back to leetcode or some kind of a project tomorrow :).
+
+ok im now realizing the ownership chapter is like SUPER basic...but i guess that makes sense.
+
+good reminder that you can only have 1 mut ref to an object until it goes out of scope, or reaches the end of persistence.
+
+also good note that you can have immutable refs to mutable objects. but i dont think you can have mutable refs to immutables.
+
+i do need to remember slices and how to use them. its kind of hard to find a perfect use case, but something like calling for values in range x-y instead of from 0, seems like a good time to use it since it saves iterations. 
+
+i think the syntax is like:
+
+let x = type;
+let x_slice = &x[range];
+
+Strings are a bit confusing but like surely i get it by now. We have 'hello' which is a string literal. but to create that we'd need a &str which is a string slice. We could also cast it into a string with String::from but then we have a String which is an owned type unlike the &str ref. so we can modify it.
+
+okay done with ownership for now. gonna go over if lets again.
+
+oh this is smart, you can use if let to create default values if None. that seems like standard practice and a good thing to remember.
+
+ooh you can also use a let else where the syntax is:
+
+so its: let enumvariant(val) = name of enum holder else {};
+
+this lets us take value if enumvariant exists and if it doesnt we do the else.
+
+okok kind of a piddly little study session but its good enough for a day off.
 
 Day 10:
 
