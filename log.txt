@@ -1004,7 +1004,157 @@ okok kind of a piddly little study session but its good enough for a day off.
 
 Day 10:
 
+Starting with leetcode today. Learned about .drain()(.count()) which removes all elements from a vec or a HashSet. This combined with .count() returns the number of elements while removing all of them. Pretty useful.
+
+For some binary search stuff you can use i32::MIN and i32::MAX to represent non-real values kind of like placeholders that ensure comparative correctness.
+
+for c in s.chars().skip(1)
+
+above seems to be some super nice syntax to just skip the first iteration. i love that shit.
+
 Day 11:
+
+Oh my days it has been so long since i worked on this. I got carried away with school projects and personal projects to really come back to this. But its time baby.
+
+I will HOPEFULLY be able to do a chapter a day now.
+
+This is ch7 which seems like version control and package management which is super useful but also really short...so lets hope its fast cuz im hungry.
+
+apparently a 'package' can contain multiple binary crates and optionally one library crate.
+eventually with a large project we can extract parts into crates that become dependencies. interesting so we kinda export parts of our code to import it.
+
+There's also somethign called 'workspaces' for giga large projects but i won't need that for now.
+
+Module system is:
+	Packages: build, test and share crates
+	Crates: its jsut modules that produce a library or exe
+	Modules and use: Let you control the organization, scope and privacy of paths
+	Paths: A way of naming an item, like a struct or fn
+
+So binary crates are kinda what weve been making so far. They have a main and run.
+A library crate don't have a main. But they are usually used for functions that are intended to be shared.
+
+When we refer to importing a crate its usually a library crate
+
+library crates are named as lib.rs in the src folder when initing from cargo
+
+you put binary crates in src/bin/ and each file is a seperate binary crate.
+
+IF LOST JUST LOOK AT THIS SHEET FOR FILE CONSTRUCTION ITS SO NICE.
+
+when compiling the compiler first looks at src/main or src/lib for code to compile
+
+we can declare modules which are pretty much directories that contain more files.
+
+so mod garden;
+	src/garden.rs
+	src/garden/mod.rs
+
+you can also inline ref subdirectories within garden like that. you might need a mod subdirectory first tho.
+
+mods are private (ofc) at the start. to use them in the parent modules you need to pub mod them.
+if we want to shorten paths we can do somethign like:
+	use crate::garden::vegetables::Asparaus;
+and then we can just refer to it as Asparagus moving forward. I wonder how this works if i also wanted to use Potato. Maybe anohter use?
+
+ok so we need the use in addition to the pub mod.
+
+so its kind of like a daisy chain of pub mods to get to the folders we want. tldr if we want the info passed around we make it pub.
+
+in the example they give they cargo new restaurant --lib with the code:
+
+mod front_of_house {
+	mod hosting {
+		fn add_to_waitlist() {}
+		fn seat_at_table() {}
+	}
+
+	mod serving {
+		fn take_order() {}
+		fn serve_order() {}
+		fn take_payment() {}
+	}
+}
+
+here we have cascading mods, but the mods could also have structs, enums, constants, traits or other stuff.
+
+with paths in rust we use :: but that was shown above.
+
+it seems like in general we use absolute paths rather than relative paths. its also like barely more work.
+
+they used a bunch of text to just explain you have to pub everything to get at somethings insides.
+
+info is passed down towards the child, but to pass it back out the entire path backwards must be pubbed.
+this lets us tier our security and makes it more modular if not slightly more work.
+
+theres some external learning here for making API crates but honestly idc that much about them right now. im not in a position to work for free.
+ok...thats not true i actually am and its good for my portfolio. idk if i could make anything valuable rn tho. maybe when im intermediate or something.
+
+we can use super like a .. in linux cli. so like super::mod takes us back 1 and then to that mod.
+
+we can also pub a struct and then pub its traits to control which parts are seen:
+
+pub struct Breakfast {
+	pub toast: String,
+	seasonal_fruit: String,
+}
+
+here we can access Breakfast struct, and modify the toast, but the seasonal_fruit is a private value so we can't see or modify it.
+however we can create 'getters' or other fns that do somethign similar to see this, just like in any other language.
+
+however for an enum if we make the enum pub it makes all variants pub:
+
+pub enum Appetizer {
+	Soup,
+	Salad,
+}
+
+Soup and Salad variants are both pub in that example.
+
+ok this answers my prev question about use paths.
+it seems like we could set a use path to like crate::parent::child.
+and then when we want to use grandchild we just say: child::grandchild.
+
+this is alot like use std::io and then io::stdin.
+
+apparently 'uses' also have a scope so make sure to define them where theyre needed.
+
+its good practice to always set a use to the parent. so that when we list the child we know we aren't using a local variable.
+
+HOWEVER if we are using structs or enums or other stuff we can just path to what we want. since that will be used similar to a local call.
+
+the only exception to the above is if the two uses share a name like std::fmt and std::io sharing result. then we go to the parent.
+another way we can do this is just to make something an as.
+
+so:
+use std::fmt::Result;
+use std::io::Result as IoResult;
+
+this avoids a compiler error and allows us to keep the short versions of names. PERSONALLY i would never do this cuz its confusing. but you can.
+
+we can also utilize 'pub use' if the fn we want to call requires that import.
+were kind of re-exporting the use here because its needed in the code. and with rust you need to deliberately list these connections.
+
+okay you can also nest some imports which is kind of nice. ive used this before but its nice to solidify how it works.
+
+so if we want std::io and std::cmd::Ordering we can do:
+use std::cmp::{cmp::Ordering, io}
+we can also do something like this. if we want std::io and std::io::Write (we dont wanna type out the whole import each time)
+
+we can do:
+use std::io::{self, Write};
+
+this gives us both self, which is just io and Write the child.
+
+if we want ALL the pub items in the path we just * it. so use std::collections::*;
+
+this is very ugly though so be careful with it. (we use it for tests...which are disgusting)
+
+
+this is a bit confusing but it seems like you only need to ref a mod once. that tells the compiler to include it as long as its found in the right spot.
+this is different than include which needs to be used a bunch of times. i think how it works is instead of calling the mod each time, we just ref the initial mod call. i think...
+
+this is all pretty easy to understand. and is something that will be done many many many times in my career so its pretty idiomatic. good to know the 'proper' way tho.
 
 Day 12:
 
