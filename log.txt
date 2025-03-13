@@ -1158,6 +1158,74 @@ this is all pretty easy to understand. and is something that will be done many m
 
 Day 12:
 
+Woah we're already at a dozen thats kinda exciting. Today doing some more documentation reading. I don't think this chapter will be a ton of new stuff BUT its very very useful so we just gotta read it. I wanted to get started on my Solana project today but ran out of time lmao. SURELY TOMORROW.
+
+so this seems to be just about datatypes that are stored on the heap so: vec, string, hashmap.
+
+create vec with v: Vec<T> = Vec::new();
+OR
+use vec! with let v = vec![1,2,3];
+this uses the default for each type so int is i32.
+
+we can also push to the vec just like a queue.
+
+to get elements we can vecname.get(index). this returns Option(&T)
+if we do index[2] we 'should' ref it first so &v[2];
+
+big difference here is the return type. if you don't know if the index exists, just use 'get' cuz it returns Option.
+
+we can iterate through a vec the same way as any collection.
+for i in &v {}
+
+since vecs only hold one type, if we need to hold a bunch of diff types a good way to do that is to put them inside an enum. then theyre all the same enum.
+
+as i learned before we can make strings with String::new(), String::from('x'), or 'x'.to_string();
+
+yeah i knew this as well but never used it yet. you can add to a string with push_str("x");
+
+can add strings with +. be careful with refs here cuz ownership is lost.
+
+theres a bunch of text here talking about deref coercion but the tldr is that if you have &str and &String, it will most like coerce the types to be compatible.
+
+if we need to combine multiple strings the best format is:
+
+let s = format!("{x}-{y}-{z}");
+
+best way to iterate over a string is with .chars so:
+
+for i in "String".chars() {}
+
+or for b in {String}.bytes() {}
+will give us the unicode values
+
+okay HashMap time!
+you make a hashmap with:
+
+let mut map = HashMap::new();
+NOTE: all types within a HashMap, like a vec, must be the same
+
+when we want to .get(x) from a HashMap. we pass in the key, not the index.
+
+we can also iterate through a HashMap like so:
+
+for (key, value) in &map {}
+
+theres some lifetime stuff here but im gonna ignore it till they explain lifetimes properly.
+
+no duplicate keys. this is kinda standard but good to remember. Its kinda like the keys are a HashSet. so we have to overwrite, or handle accordingly
+
+we can also do something cool with .entry like so:
+map.entry(String::from("Yellow")).or_insert(50);
+
+what this does is check if the key "Yellow" exists. if it does, and is empty it adds the value. if its 'full' it does nothing.
+if it doesnt, it inserts the key and the value pairing.
+
+dude chapter 10 seems like a huge deal they keep talking about it.
+
+anyways thats p much collections. its really simple since ive worked with all of these before.
+ngl this took barely 20mins so i should definitely work more but its late so imma be healthy and sleep. tmrw ill do some more and maybe get up to ch10 done.
+also start on my ML project...and my Solana program..haha....surely...u_u
+
 Day 13:
 
 Day 14:
