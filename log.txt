@@ -1228,6 +1228,91 @@ also start on my ML project...and my Solana program..haha....surely...u_u
 
 Day 13:
 
+ITS SOL DAY!! I finally started hushed which is my Solana, Arweave, Kafka chatroom project im super stoked on. But i need to do a bunch of research. So today's notes will actually just be sol documentation notes...which is annoying but wtv. I might try and do a chapter of rust after but idk. This is still technically rust...kinda...so ill put it here...haha...
+
+okay sol core concepts:
+
+	on Solana all data is stored in "accounts". these accounts resemble a k-v store where each entry is an account.
+
+	Transactions are how the network is interacted with. can be one or more instructions each representing a specific operation.
+	the logic for this is stored within the program that is deployed (devnet, testnet, mainnet)
+
+	Fees are as follows:
+		Transaction fees: a fee to have validators process transactions/instructions
+		Prioritization: an optional fee to boost speeds
+		Rent: a balance to keep data stored on-chain
+	
+	In Sol, smart contracts are called programs. each program is stored onchain and contains code that defines instructions. This is how we invoke transactions
+
+	Program Derived Addresses (PDAs) provide devs with two use cases:
+		Deterministic account addresses: a mechanism to deterministically derive an address using a combination of "seeds" and a specific program id.
+		Program Signing: Enables programs to "sign" for PDAs which are derived from its own name.
+
+		PDAs are ways to create hashmap-like structures on-chain and form a predefined set of inputs.
+	
+	Cross Program Invocation (CPI)
+		A CPI refers to when one program invokes another program. This just gives us composability. Kind of like API endpoints.
+
+	Tokens on Sol
+		Tokens are digital assets that represent ownership over diverse categories of assets. Tonkenization enables the digitization of property rights,
+		serving as a component for managing both fungible and non-fungible assets.
+	
+	Clusters and Endpoints
+		Sol has several groups of validators, known as Clusters. Each serves a purpsoe and has dedicates nodes to fulfill JSON-RPC requests.
+			Mainnet (Prod)
+			Devnet (Developer Experimentation)
+			Testnet (Validator Testing)
+	
+
+Accounts:
+
+	Accounts can store up to 10MiB of data: including code or program state
+	Account require a rent deposit in SOL that is proportional to the data stored. which is refunded when closed.
+	Each account has a program owner. only the program that owns the account and manipulate its data or subtract from the SOL balance.
+
+		-Programs are stateless accounts that store code
+		-Data accounts are created by programs to store and manage program state
+		-Native programs are built-in programs included with Solana runtime
+		-Sysvar accounts are special accounts that store network cluster state
+	
+	Each account on Solana is id'd by a 32byte address which is displayed as a base58 encoded string.
+
+	The address is a kvp where the address helps us locate the coressponding on-chain data.
+	
+	**Most accounts use an Ed25519 public key as their address.**
+
+	The address can also be Program Derived (PDA). which allows the program to set the address from the program id and seeds.
+
+	Every Account has the following fields (is this a struct?):
+		data: a byte array that stores arbitrary data. This usually stores read only data. For programs it stores the code.
+		executable: bool flag that tells us if its a program or not
+		lamports: account balance in lamports (the small unit of SOL)
+		owner: the program id (public key) that owns the account.
+		rent_epoch: old field from when rent was collected continuously. now its not used.
+
+	Each account has one program as its owner, only the owner can modify the data field or deduct lamports.
+
+	RENT (THIS IS IMPORTANT)
+		to store data accounts must maintain a minimum SOL balance that is proportioanl to the amount of data stored. Its not taken out necessarily.
+	
+	Sol validator includes special programs that are used for core functionalities. Two big ones are:
+		The System Program:
+			creates new accounts on network
+			allocates data space for accounts
+			assigns ownership to programs
+
+		The BPF Loader:
+			the program owner for all deployed programs
+			handles program deployment and upgrades
+	
+	By default, all new accounts are owned by the System Program. This can do several tasks:
+		New Account Creation
+		Space Allocation: set byte capacity for the data field
+		Assign Program Ownership: Once the System Program creates an account it can reassign the designated program owner to a different account.
+			This is how custom programs take ownership of new accounts.
+	
+	All 'wallet' accounts are simply accounts owned by the System Program. The lamport balance represents the amount of SOL in the wallet.
+
 Day 14:
 
 Day 15:
