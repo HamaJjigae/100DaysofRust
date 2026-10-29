@@ -1,3 +1,0 @@
--CLI Shell Project modeled after Fish
-
-- 1-1 Terminal based chatroom
